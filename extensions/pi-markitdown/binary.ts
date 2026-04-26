@@ -19,23 +19,25 @@ export async function detectBinary(pi: ExtensionAPI): Promise<BinaryConfig> {
     return { binary: envPath, prefixArgs: [] };
   }
 
-  const runners: { binary: string; prefixArgs: string[]; probeArgs: string[] }[] = [
-    { binary: 'markitdown', prefixArgs: [], probeArgs: ['--version'] },
+  const runners: { binary: string; prefixArgs: string[]; probeArgs: string[]; timeout: number }[] = [
+    { binary: 'markitdown', prefixArgs: [], probeArgs: ['--version'], timeout: 5000 },
     {
       binary: 'pipx',
       prefixArgs: ['run', '--spec', 'markitdown[all]', 'markitdown'],
       probeArgs: ['run', '--spec', 'markitdown[all]', 'markitdown', '--version'],
+      timeout: 40000,
     },
     {
       binary: 'uvx',
-      prefixArgs: ['--with', 'markitdown[all]', 'markitdown'],
-      probeArgs: ['--with', 'markitdown[all]', 'markitdown', '--version'],
+      prefixArgs: ['--from', 'markitdown[all]', 'markitdown'],
+      probeArgs: ['--from', 'markitdown[all]', 'markitdown', '--version'],
+      timeout: 40000,
     },
   ];
 
   for (const runner of runners) {
     try {
-      const result = await pi.exec(runner.binary, runner.probeArgs, { timeout: 5000 });
+      const result = await pi.exec(runner.binary, runner.probeArgs, { timeout: runner.timeout });
       if (result.code === 0) {
         return { binary: runner.binary, prefixArgs: runner.prefixArgs };
       }

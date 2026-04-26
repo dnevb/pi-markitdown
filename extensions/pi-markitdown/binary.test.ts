@@ -45,12 +45,12 @@ describe('detectBinary', () => {
 
   it('falls back to uvx when pipx missing', async () => {
     const results = new Map([
-      ['uvx --with markitdown[all] markitdown --version', { code: 0, stdout: '1.0.0', stderr: '' }],
+      ['uvx --from markitdown[all] markitdown --version', { code: 0, stdout: '1.0.0', stderr: '' }],
     ]);
     const pi = createMockPI(results);
     const config = await detectBinary(pi);
     expect(config.binary).toBe('uvx');
-    expect(config.prefixArgs).toEqual(['--with', 'markitdown[all]', 'markitdown']);
+    expect(config.prefixArgs).toEqual(['--from', 'markitdown[all]', 'markitdown']);
   });
 
   it('throws with install instructions when all runners missing', async () => {
