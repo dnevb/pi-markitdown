@@ -18,7 +18,6 @@ pi extension wrapping `markitdown` CLI. converts files (PDF, DOCX, PPTX, XLSX, i
   - param `use_plugins`: boolean? — pass `--use-plugins`.
   - param `docintel_endpoint`: string? — pass `-d -e <endpoint>`.
   - param `llm_client`: ⊥ — not supported (CLI lacks direct LLM flags).
-- cmd: `/markitdown-install` — checks `markitdown` presence, prints install instructions.
 - env: `MARKITDOWN_PATH`? — override binary path (default `markitdown`).
 - event: `session_start` — auto-detects missing binary, prompts once per session to install. cancel = silent, no repeat prompt until new session.
 
@@ -36,8 +35,7 @@ T2|x|register `markitdown` tool with typebox schema|V1,I.tool
 T3|x|impl shell-out logic with `pi.exec` or `Bun.spawn`|V1,V3
 T4|x|handle missing binary gracefully (V2)|V2
 T5|x|add output truncation (V4)|V4
-T6|.|register `/markitdown-install` command|I.cmd
-T7|.|test with sample PDF/DOCX files|V5
+T6|x|test with sample PDF/DOCX files|V5
 
 ## §B BUGS
 id|date|cause|fix

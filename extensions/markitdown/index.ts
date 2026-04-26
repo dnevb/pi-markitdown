@@ -6,6 +6,65 @@ import { buildArgs } from "./args";
 import { detectBinary } from "./binary";
 import { truncateOutput } from "./output";
 
+export type MarkitdownParams = {
+	source: string;
+	output_path?: string;
+	use_plugins?: boolean;
+	docintel_endpoint?: string;
+};
+
+export type ToolResult = {
+	isError?: boolean;
+	content: Array<{ type: string; text: string }>;
+	details: Record<string, unknown>;
+};
+
+export async function executeMarkitdown(
+	pi: ExtensionAPI,
+	params: MarkitdownParams,
+	signal: AbortSignal | undefined,
+	cwd: string,
+): Promise<ToolResult> {
+	try {
+		const { binary, prefixArgs } = await detectBinary(pi);
+		const source = resolveSource(params.source, cwd);
+		const outputPath = params.output_path ? resolve(cwd, params.output_path) : undefined;
+
+		const args = [...prefixArgs, ...buildArgs({
+			...params,
+			source,
+			output_path: outputPath,
+		})];
+
+		const result = await pi.exec(binary, args, { signal });
+
+		if (result.code !== 0) {
+			return {
+				isError: true,
+				content: [{
+					type: "text",
+					text: `markitdown exited with code ${result.code}:\n${result.stderr || result.stdout || ""}`,
+				}],
+				details: { code: result.code },
+			};
+		}
+
+		return {
+			content: [{ type: "text", text: truncateOutput(result.stdout) }],
+			details: {},
+		};
+	} catch (err) {
+		return {
+			isError: true,
+			content: [{
+				type: "text",
+				text: err instanceof Error ? err.message : String(err),
+			}],
+			details: {},
+		};
+	}
+}
+
 export default function (pi: ExtensionAPI) {
 	pi.registerTool({
 		name: "markitdown",
@@ -19,44 +78,7 @@ export default function (pi: ExtensionAPI) {
 		}),
 
 		async execute(_toolCallId, params, signal, _onUpdate, ctx) {
-			try {
-				const { binary, prefixArgs } = await detectBinary(pi);
-				const source = resolveSource(params.source, ctx.cwd);
-				const outputPath = params.output_path ? resolve(ctx.cwd, params.output_path) : undefined;
-
-				const args = [...prefixArgs, ...buildArgs({
-					...params,
-					source,
-					output_path: outputPath,
-				})];
-
-				const result = await pi.exec(binary, args, { signal });
-
-				if (result.code !== 0) {
-					return {
-						isError: true,
-						content: [{
-							type: "text",
-							text: `markitdown exited with code ${result.code}:\n${result.stderr || result.stdout || ""}`,
-						}],
-						details: { code: result.code },
-					};
-				}
-
-				return {
-					content: [{ type: "text", text: truncateOutput(result.stdout) }],
-					details: {},
-				};
-			} catch (err) {
-				return {
-					isError: true,
-					content: [{
-						type: "text",
-						text: err instanceof Error ? err.message : String(err),
-					}],
-					details: {},
-				};
-			}
+			return executeMarkitdown(pi, params, signal, ctx.cwd);
 		},
 	});
 }
