@@ -1,5 +1,40 @@
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
 import { Type } from "typebox";
+import { resolve } from "node:path";
+
+function isUrl(source: string): boolean {
+	return source.startsWith("http://") || source.startsWith("https://");
+}
+
+export function resolveSource(source: string, cwd: string): string {
+	if (isUrl(source)) return source;
+	return resolve(cwd, source);
+}
+
+export function buildArgs(params: {
+	source: string;
+	output_path?: string;
+	use_plugins?: boolean;
+	docintel_endpoint?: string;
+}): string[] {
+	const args: string[] = [];
+
+	if (params.use_plugins) {
+		args.push("--use-plugins");
+	}
+
+	if (params.docintel_endpoint) {
+		args.push("-d", "-e", params.docintel_endpoint);
+	}
+
+	args.push(params.source);
+
+	if (params.output_path) {
+		args.push("-o", params.output_path);
+	}
+
+	return args;
+}
 
 export default function (pi: ExtensionAPI) {
 	pi.registerTool({
@@ -12,9 +47,37 @@ export default function (pi: ExtensionAPI) {
 			use_plugins: Type.Optional(Type.Boolean({ description: "Enable markitdown plugins via --use-plugins." })),
 			docintel_endpoint: Type.Optional(Type.String({ description: "Document Intelligence endpoint URL, passed as -d -e <endpoint>." })),
 		}),
-		async execute(_toolCallId, params, _signal, _onUpdate, _ctx) {
+
+		async execute(_toolCallId, params, signal, _onUpdate, ctx) {
+			const binary = process.env.MARKITDOWN_PATH ?? "markitdown";
+			const source = resolveSource(params.source, ctx.cwd);
+			const outputPath = params.output_path
+				? resolve(ctx.cwd, params.output_path)
+				: undefined;
+
+			const args = buildArgs({
+				...params,
+				source,
+				output_path: outputPath,
+			});
+
+			const result = await pi.exec(binary, args, { signal });
+
+			if (result.code !== 0) {
+				return {
+					isError: true,
+					content: [
+						{
+							type: "text",
+							text: `markitdown exited with code ${result.code}:\n${result.stderr || result.stdout || ""}`,
+						},
+					],
+					details: { code: result.code },
+				};
+			}
+
 			return {
-				content: [{ type: "text", text: "markitdown tool registered — shell-out logic not yet implemented." }],
+				content: [{ type: "text", text: result.stdout }],
 				details: {},
 			};
 		},
