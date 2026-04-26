@@ -27,6 +27,7 @@ V2: binary missing → tool returns error with install instructions, ! crash.
 V3: `source` path resolved relative to `ctx.cwd` before passing to CLI.
 V4: output > 50KB → truncate with warning (markitdown can emit large docs).
 V5: non-zero exit code → `isError: true` with stderr in content.
+V6: ∀ ephemeral runner (pipx, uvx) → invocation includes `markitdown[all]` extras.
 
 ## §T TASKS
 id|status|task|cites
@@ -39,3 +40,4 @@ T6|x|test with sample PDF/DOCX files|V5
 
 ## §B BUGS
 id|date|cause|fix
+B1|2026-04-26|pipx/uvx runners omit [all] extras → ephemeral markitdown runs without plugins|V6

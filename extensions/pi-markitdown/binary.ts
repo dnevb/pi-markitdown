@@ -23,10 +23,14 @@ export async function detectBinary(pi: ExtensionAPI): Promise<BinaryConfig> {
     { binary: 'markitdown', prefixArgs: [], probeArgs: ['--version'] },
     {
       binary: 'pipx',
-      prefixArgs: ['run', 'markitdown'],
-      probeArgs: ['run', 'markitdown', '--version'],
+      prefixArgs: ['run', '--spec', 'markitdown[all]', 'markitdown'],
+      probeArgs: ['run', '--spec', 'markitdown[all]', 'markitdown', '--version'],
     },
-    { binary: 'uvx', prefixArgs: ['markitdown'], probeArgs: ['markitdown', '--version'] },
+    {
+      binary: 'uvx',
+      prefixArgs: ['--with', 'markitdown[all]', 'markitdown'],
+      probeArgs: ['--with', 'markitdown[all]', 'markitdown', '--version'],
+    },
   ];
 
   for (const runner of runners) {
