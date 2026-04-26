@@ -1,4 +1,4 @@
-import type { ExtensionAPI } from '@mariozechner/pi-coding-agent';
+import type { ExtensionAPI, ExtensionContext } from '@mariozechner/pi-coding-agent';
 import { describe, expect, it, vi } from 'vitest';
 import { executeMarkitdown } from './index';
 
@@ -14,6 +14,13 @@ function createMockPI(
   } as unknown as ExtensionAPI;
 }
 
+function createMockCtx(cwd: string): ExtensionContext {
+  return {
+    cwd,
+    abort: vi.fn(),
+  } as unknown as ExtensionContext;
+}
+
 describe('executeMarkitdown', () => {
   it('returns markdown output on success', async () => {
     const pi = createMockPI(async (_binary, args) => {
@@ -27,7 +34,7 @@ describe('executeMarkitdown', () => {
       };
     });
 
-    const result = await executeMarkitdown(pi, { source: 'doc.pdf' }, undefined, '/home/user');
+    const result = await executeMarkitdown(pi, { source: 'doc.pdf' }, undefined, createMockCtx('/home/user'));
 
     expect(result.isError).toBeUndefined();
     expect(result.content).toHaveLength(1);
@@ -46,7 +53,7 @@ describe('executeMarkitdown', () => {
       };
     });
 
-    const result = await executeMarkitdown(pi, { source: 'bad.xyz' }, undefined, '/home/user');
+    const result = await executeMarkitdown(pi, { source: 'bad.xyz' }, undefined, createMockCtx('/home/user'));
 
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain('markitdown exited with code 1');
@@ -59,7 +66,7 @@ describe('executeMarkitdown', () => {
       throw new Error('ENOENT');
     });
 
-    const result = await executeMarkitdown(pi, { source: 'doc.pdf' }, undefined, '/home/user');
+    const result = await executeMarkitdown(pi, { source: 'doc.pdf' }, undefined, createMockCtx('/home/user'));
 
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain('markitdown CLI not found');
@@ -75,7 +82,7 @@ describe('executeMarkitdown', () => {
       return { code: 0, stdout: '# Markdown', stderr: '' };
     });
 
-    await executeMarkitdown(pi, { source: 'doc.pdf', use_plugins: true }, undefined, '/home/user');
+    await executeMarkitdown(pi, { source: 'doc.pdf', use_plugins: true }, undefined, createMockCtx('/home/user'));
     expect(pi.exec).toHaveBeenCalled();
   });
 
@@ -94,7 +101,7 @@ describe('executeMarkitdown', () => {
       pi,
       { source: 'doc.pdf', docintel_endpoint: 'https://endpoint.com' },
       undefined,
-      '/home/user',
+      createMockCtx('/home/user'),
     );
     expect(pi.exec).toHaveBeenCalled();
   });
@@ -108,7 +115,7 @@ describe('executeMarkitdown', () => {
       return { code: 0, stdout: '# Markdown', stderr: '' };
     });
 
-    await executeMarkitdown(pi, { source: './docs/doc.pdf' }, undefined, '/home/user');
+    await executeMarkitdown(pi, { source: './docs/doc.pdf' }, undefined, createMockCtx('/home/user'));
     expect(pi.exec).toHaveBeenCalled();
   });
 
@@ -121,7 +128,7 @@ describe('executeMarkitdown', () => {
       return { code: 0, stdout: '# Markdown', stderr: '' };
     });
 
-    await executeMarkitdown(pi, { source: 'https://example.com/doc.pdf' }, undefined, '/home/user');
+    await executeMarkitdown(pi, { source: 'https://example.com/doc.pdf' }, undefined, createMockCtx('/home/user'));
     expect(pi.exec).toHaveBeenCalled();
   });
 });
