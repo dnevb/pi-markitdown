@@ -1,70 +1,10 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "typebox";
 import { resolve } from "node:path";
-
-const INSTALL_INSTRUCTIONS = `markitdown CLI not found.
-
-Install via one of:
-  pipx install markitdown
-  uv tool install markitdown
-  mise use -g markitdown
-
-Or set MARKITDOWN_PATH environment variable.`;
-
-function isUrl(source: string): boolean {
-	return source.startsWith("http://") || source.startsWith("https://");
-}
-
-export function resolveSource(source: string, cwd: string): string {
-	if (isUrl(source)) return source;
-	return resolve(cwd, source);
-}
-
-export function buildArgs(params: {
-	source: string;
-	output_path?: string;
-	use_plugins?: boolean;
-	docintel_endpoint?: string;
-}): string[] {
-	const args: string[] = [];
-	if (params.use_plugins) args.push("--use-plugins");
-	if (params.docintel_endpoint) args.push("-d", "-e", params.docintel_endpoint);
-	args.push(params.source);
-	if (params.output_path) args.push("-o", params.output_path);
-	return args;
-}
-
-type BinaryConfig = {
-	binary: string;
-	prefixArgs: string[];
-};
-
-export async function detectBinary(pi: ExtensionAPI): Promise<BinaryConfig> {
-	const envPath = process.env.MARKITDOWN_PATH;
-	if (envPath) {
-		return { binary: envPath, prefixArgs: [] };
-	}
-
-	const runners: { binary: string; prefixArgs: string[]; probeArgs: string[] }[] = [
-		{ binary: "markitdown", prefixArgs: [], probeArgs: ["--version"] },
-		{ binary: "pipx", prefixArgs: ["run", "markitdown"], probeArgs: ["run", "markitdown", "--version"] },
-		{ binary: "uvx", prefixArgs: ["markitdown"], probeArgs: ["markitdown", "--version"] },
-		{ binary: "mise", prefixArgs: ["exec", "--", "markitdown"], probeArgs: ["exec", "--", "markitdown", "--version"] },
-	];
-
-	for (const runner of runners) {
-		try {
-			const result = await pi.exec(runner.binary, runner.probeArgs, { timeout: 5000 });
-			if (result.code === 0) {
-				return { binary: runner.binary, prefixArgs: runner.prefixArgs };
-			}
-		} catch {
-			continue;
-		}
-	}
-
-	throw new Error(INSTALL_INSTRUCTIONS);
-}
+import { resolveSource } from "./source";
+import { buildArgs } from "./args";
+import { detectBinary } from "./binary";
+import { truncateOutput } from "./output";
 
 export default function (pi: ExtensionAPI) {
 	pi.registerTool({
@@ -104,7 +44,7 @@ export default function (pi: ExtensionAPI) {
 				}
 
 				return {
-					content: [{ type: "text", text: result.stdout }],
+					content: [{ type: "text", text: truncateOutput(result.stdout) }],
 					details: {},
 				};
 			} catch (err) {
