@@ -19,21 +19,22 @@ export async function detectBinary(pi: ExtensionAPI): Promise<BinaryConfig> {
     return { binary: envPath, prefixArgs: [] };
   }
 
-  const runners: { binary: string; prefixArgs: string[]; probeArgs: string[]; timeout: number }[] = [
-    { binary: 'markitdown', prefixArgs: [], probeArgs: ['--version'], timeout: 5000 },
-    {
-      binary: 'pipx',
-      prefixArgs: ['run', '--spec', 'markitdown[all]', 'markitdown'],
-      probeArgs: ['run', '--spec', 'markitdown[all]', 'markitdown', '--version'],
-      timeout: 40000,
-    },
-    {
-      binary: 'uvx',
-      prefixArgs: ['--from', 'markitdown[all]', 'markitdown'],
-      probeArgs: ['--from', 'markitdown[all]', 'markitdown', '--version'],
-      timeout: 40000,
-    },
-  ];
+  const runners: { binary: string; prefixArgs: string[]; probeArgs: string[]; timeout: number }[] =
+    [
+      { binary: 'markitdown', prefixArgs: [], probeArgs: ['--version'], timeout: 5000 },
+      {
+        binary: 'pipx',
+        prefixArgs: ['run', '--spec', 'markitdown[all]', 'markitdown'],
+        probeArgs: ['run', '--spec', 'markitdown[all]', 'markitdown', '--version'],
+        timeout: 40000,
+      },
+      {
+        binary: 'uvx',
+        prefixArgs: ['--from', 'markitdown[all]', 'markitdown'],
+        probeArgs: ['--from', 'markitdown[all]', 'markitdown', '--version'],
+        timeout: 40000,
+      },
+    ];
 
   for (const runner of runners) {
     try {

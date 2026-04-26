@@ -35,7 +35,10 @@ describe('detectBinary', () => {
 
   it('falls back to pipx when direct markitdown missing', async () => {
     const results = new Map([
-      ['pipx run --spec markitdown[all] markitdown --version', { code: 0, stdout: '1.0.0', stderr: '' }],
+      [
+        'pipx run --spec markitdown[all] markitdown --version',
+        { code: 0, stdout: '1.0.0', stderr: '' },
+      ],
     ]);
     const pi = createMockPI(results);
     const config = await detectBinary(pi);

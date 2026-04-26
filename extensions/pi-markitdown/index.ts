@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import type { ExtensionAPI } from '@mariozechner/pi-coding-agent';
+import type { ExtensionAPI, ExtensionContext } from '@mariozechner/pi-coding-agent';
 import { Type } from 'typebox';
 import { buildArgs } from './args';
 import { detectBinary } from './binary';
@@ -15,7 +15,7 @@ export type MarkitdownParams = {
 
 export type ToolResult = {
   isError?: boolean;
-  content: Array<{ type: string; text: string }>;
+  content: Array<{ type: 'text'; text: string }>;
   details: Record<string, unknown>;
 };
 
@@ -23,12 +23,12 @@ export async function executeMarkitdown(
   pi: ExtensionAPI,
   params: MarkitdownParams,
   signal: AbortSignal | undefined,
-  cwd: string,
+  ctx: ExtensionContext,
 ): Promise<ToolResult> {
   try {
     const { binary, prefixArgs } = await detectBinary(pi);
-    const source = resolveSource(params.source, cwd);
-    const outputPath = params.output_path ? resolve(cwd, params.output_path) : undefined;
+    const source = resolveSource(params.source, ctx.cwd);
+    const outputPath = params.output_path ? resolve(ctx.cwd, params.output_path) : undefined;
 
     const args = [
       ...prefixArgs,
@@ -59,6 +59,7 @@ export async function executeMarkitdown(
       details: {},
     };
   } catch (err) {
+    ctx.abort();
     return {
       isError: true,
       content: [
@@ -94,7 +95,7 @@ export default function (pi: ExtensionAPI) {
     }),
 
     async execute(_toolCallId, params, signal, _onUpdate, ctx) {
-      return executeMarkitdown(pi, params, signal, ctx.cwd);
+      return executeMarkitdown(pi, params, signal, ctx);
     },
   });
 }

@@ -29,6 +29,7 @@ V4: output > 50KB → truncate with warning (markitdown can emit large docs).
 V5: non-zero exit code → `isError: true` with stderr in content.
 V6: ∀ ephemeral runner (pipx, uvx) → invocation includes `markitdown[all]` extras.
 V7: ∀ ephemeral runner probe → timeout ≥ 40s to allow first-run package download.
+V8: ∀ binary missing → `ctx.abort()` before returning error result, stopping agent execution.
 
 ## §T TASKS
 id|status|task|cites
@@ -44,3 +45,5 @@ id|date|cause|fix
 B1|2026-04-26|pipx/uvx runners omit [all] extras → ephemeral markitdown runs without plugins|V6
 B2|2026-04-26|uvx runner uses `--with` instead of `--from` for extras → wrong package semantics|V6
 B3|2026-04-26|probe timeout 5s too short for ephemeral runner first-run install → detection fails|V7
+B4|2026-04-26|ToolResult.content `type` inferred as `string` not literal `"text"` → TS2322 against AgentToolResult|
+B5|2026-04-26|Binary not found threw but `ctx.abort()` omitted → agent session continued|V8
