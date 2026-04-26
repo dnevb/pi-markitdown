@@ -3,8 +3,8 @@ import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 export const INSTALL_INSTRUCTIONS = `markitdown CLI not found.
 
 Install via one of:
-  pipx install markitdown
-  uv tool install markitdown
+  pipx install 'markitdown[all]'
+  uv tool install markitdown --with 'markitdown[all]'
 
 Or set MARKITDOWN_PATH environment variable.`;
 

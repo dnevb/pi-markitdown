@@ -4,11 +4,27 @@
   "description": "pi extension wrapping markitdown CLI",
   "type": "module",
   "main": "index.ts",
+  "keywords": [
+    "pi-package"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dnevb/pi-markitdown.git"
+  },
+  "files": [
+    "extensions/",
+    "README.md"
+  ],
   "scripts": {
     "test:watch": "vitest",
     "test": "vitest run",
     "lint": "biome check .",
     "format": "biome format --write ."
+  },
+  "pi": {
+    "extensions": [
+      "extensions/pi-markitdown/index.ts"
+    ]
   },
   "devDependencies": {
     "vitest": "^4.0.18",
