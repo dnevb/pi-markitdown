@@ -9,6 +9,7 @@ pi extension wrapping `markitdown` CLI. converts files (PDF, DOCX, PPTX, XLSX, i
 - No Python-in-TS bundling. shell out to `markitdown` binary only.
 - Supports local files & URLs (markitdown handles URLs natively).
 - Extension file: `index.ts`. installs to `~/.pi/agent/extensions/markitdown/`.
+- Test + lint via `vitest` & `@biomejs/biome`.
 
 ## §I INTERFACES
 - tool: `markitdown` → converts file/URL to markdown.

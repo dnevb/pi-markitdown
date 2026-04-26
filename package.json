@@ -1,0 +1,22 @@
+{
+  "name": "pi-markitdown",
+  "version": "1.0.0",
+  "description": "pi extension wrapping markitdown CLI",
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "test": "vitest",
+    "lint": "biome check .",
+    "format": "biome format --write ."
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18",
+    "@biomejs/biome": "^2.4.13"
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-ai": "*",
+    "@mariozechner/pi-coding-agent": "*",
+    "@mariozechner/pi-tui": "*",
+    "typebox": "*"
+  }
+}
