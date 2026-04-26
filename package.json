@@ -2,8 +2,6 @@
   "name": "pi-markitdown",
   "version": "1.0.0",
   "description": "pi extension wrapping markitdown CLI",
-  "type": "module",
-  "main": "index.ts",
   "keywords": [
     "pi-package"
   ],
@@ -16,10 +14,10 @@
     "README.md"
   ],
   "scripts": {
-    "test:watch": "vitest",
     "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "biome check .",
-    "format": "biome format --write ."
+    "lint:fix": "biome check . --write"
   },
   "pi": {
     "extensions": [
