@@ -32,7 +32,7 @@ V5: non-zero exit code → `isError: true` with stderr in content.
 ## §T TASKS
 id|status|task|cites
 T1|x|scaffold `index.ts` with extension boilerplate|I.tool
-T2|.|register `markitdown` tool with typebox schema|V1,I.tool
+T2|x|register `markitdown` tool with typebox schema|V1,I.tool
 T3|.|impl shell-out logic with `pi.exec` or `Bun.spawn`|V1,V3
 T4|.|handle missing binary gracefully (V2)|V2
 T5|.|add output truncation (V4)|V4
