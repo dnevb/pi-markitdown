@@ -34,7 +34,7 @@ id|status|task|cites
 T1|x|scaffold `index.ts` with extension boilerplate|I.tool
 T2|x|register `markitdown` tool with typebox schema|V1,I.tool
 T3|x|impl shell-out logic with `pi.exec` or `Bun.spawn`|V1,V3
-T4|.|handle missing binary gracefully (V2)|V2
+T4|x|handle missing binary gracefully (V2)|V2
 T5|.|add output truncation (V4)|V4
 T6|.|register `/markitdown-install` command|I.cmd
 T7|.|test with sample PDF/DOCX files|V5
